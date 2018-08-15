@@ -76,7 +76,7 @@ function downloadImg(url, data, next) {
                 data.content = data.content.replace(url, path.join(pathname, filename));
                 next(null);
             } else {
-                var req = http.get(url, function(res) {
+                var req = http.get(encodeURI(url), function(res) {
 
                     var imgData = "";
 
