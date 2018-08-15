@@ -86,7 +86,7 @@ function downloadImg(url, data, next) {
                     });
 
                     res.on("end", function() {
-
+                        
                         fs.writeFile(filepath, imgData, "binary", function(err){
                             if(err){
                                 console.log("download fail: "+ url);
@@ -99,20 +99,14 @@ function downloadImg(url, data, next) {
                         });
                     });
                 });
-
-                req.on('socket', function (socket) {
-                    socket.setTimeout(5000);  
-                    socket.on('timeout', function() {
-                        req.abort();
-                    });
-                });
                 
                 req.on('error', function(err) {
                     if (err.code === "ECONNRESET") {
-                        console.log("Timeout occurs");
+                        console.log("ECONNRESET occurs:"+url);
                         //specific error treatment
                     }
                     console.error(err);
+                    next(err);
                 });
             }
         }
