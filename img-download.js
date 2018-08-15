@@ -29,7 +29,7 @@ function completeHost(host) {
 function matchImgs(content, host) {
     var uniqueImgs = {};
     var exts = 'jpg|jpeg|png|gif|webp';
-    var reg = new RegExp(host + '[^('+ exts +')]*\.('+ exts +')', 'g');
+    var reg = new RegExp(host + '[^\\)\\]]+\.('+ exts +')', 'g');
 
     return content.match(reg) || [];
 }
@@ -76,7 +76,7 @@ function downloadImg(url, data, next) {
                 data.content = data.content.replace(url, path.join(pathname, filename));
                 next(null);
             } else {
-                http.get(url, function(res) {
+                var req = http.get(url, function(res) {
 
                     var imgData = "";
 
@@ -98,6 +98,21 @@ function downloadImg(url, data, next) {
                             next(err);
                         });
                     });
+                });
+
+                req.on('socket', function (socket) {
+                    socket.setTimeout(5000);  
+                    socket.on('timeout', function() {
+                        req.abort();
+                    });
+                });
+                
+                req.on('error', function(err) {
+                    if (err.code === "ECONNRESET") {
+                        console.log("Timeout occurs");
+                        //specific error treatment
+                    }
+                    console.error(err);
                 });
             }
         }
